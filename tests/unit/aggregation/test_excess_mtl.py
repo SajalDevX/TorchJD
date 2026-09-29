@@ -1,3 +1,5 @@
+from typing import cast
+
 import torch
 from pytest import mark, raises
 from torch import Tensor
@@ -263,14 +265,14 @@ def test_log_space_update_matches_direct_formula() -> None:
     """On well-behaved inputs the update is the same as weights * exp(eta * w), normalized."""
     weighting = ExcessMTLWeighting(robust_step_size=0.5)
     weighting(randn_(3, 6))
-    before = weighting._weights.clone()
+    before = cast(Tensor, weighting._weights).clone()
     matrix = randn_(3, 6)
 
     weights = weighting(matrix)
 
-    sq_grad_sum = weighting._sq_grad_sum
+    sq_grad_sum = cast(Tensor, weighting._sq_grad_sum)
     w = (matrix**2 / torch.sqrt(sq_grad_sum + 1e-7)).sum(dim=1)
-    w = w / (weighting._initial_w + 1e-7)
+    w = w / (cast(Tensor, weighting._initial_w) + 1e-7)
     expected = before * torch.exp(0.5 * w)
     expected = expected / expected.sum()
     assert_close(weights, expected)
