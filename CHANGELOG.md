@@ -8,6 +8,13 @@ changelog does not include internal changes that do not affect the user.
 
 ## [Unreleased]
 
+### Fixed
+
+- Fixed `ExcessMTL` and `ExcessMTLWeighting` producing `nan` weights for the rest of the run when a
+  task had a zero gradient at the call that sets its baseline excess risk. The exponentiated
+  gradient update is now computed in log space, so a very large excess risk saturates the weights
+  instead of overflowing.
+
 ## [0.17.1] - 2026-09-23
 
 ### Fixed
