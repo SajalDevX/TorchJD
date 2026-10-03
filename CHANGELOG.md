@@ -14,6 +14,10 @@ changelog does not include internal changes that do not affect the user.
   task had a zero gradient at the call that sets its baseline excess risk. The exponentiated
   gradient update is now computed in log space, so a very large excess risk saturates the weights
   instead of overflowing.
+- Fixed `Krum` and `KrumWeighting` sometimes selecting the wrong rows when two rows of the input
+  matrix are almost equal. Rounding errors could make the squared distance between such rows
+  slightly negative, giving a `nan` distance that was then ignored when computing the scores.
+  Squared distances are now clamped to be non-negative before taking the square root.
 
 ## [0.17.1] - 2026-09-23
 
