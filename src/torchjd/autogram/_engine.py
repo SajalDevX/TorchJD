@@ -326,6 +326,12 @@ class Engine:
             grad_output = torch.ones_like(output)
             _ = differentiation(grad_output)
 
+        if any(computer.has_pending_jacobian() for computer in self._gramian_computers.values()):
+            raise ValueError(
+                "Some modules had a forward pass without an associated backward pass (e.g. because "
+                "its output was detached)."
+            )
+
         # If the gramian were None, then leaf_targets would be empty, so autograd.grad would
         # have failed. So gramian is necessarily a valid Tensor here.
         gramian = cast(PSDMatrix, self._gramian_accumulator.gramian)
