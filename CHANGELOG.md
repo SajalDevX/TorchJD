@@ -22,6 +22,9 @@ changelog does not include internal changes that do not affect the user.
   the others when the input is in `float64`. The tolerance used to find the rank of the Gramian was
   always based on the machine epsilon of the default dtype (usually `float32`) instead of the dtype
   of the Gramian, so valid small eigenvalues were discarded.
+- Fixed `Engine.compute_gramian` silently ignoring the contribution of a module when one of its
+  forward passes had no associated backward pass (e.g. because its output was detached). It now
+  raises a `ValueError` instead.
 
 ## [0.17.1] - 2026-09-23
 
