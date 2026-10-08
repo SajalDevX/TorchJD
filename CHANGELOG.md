@@ -34,6 +34,10 @@ changelog does not include internal changes that do not affect the user.
 - Fixed `Engine.compute_gramian` silently ignoring the contribution of a module when one of its
   forward passes had no associated backward pass (e.g. because its output was detached). It now
   raises a `ValueError` instead.
+- Fixed `jac_to_grad` failing with a `RuntimeError` when the tensors do not all have the same dtype
+  (e.g. a model with some parameters in `float32` and others in `float64`). The aggregated gradient
+  was computed in the promoted dtype and could not be assigned to the `.grad` field of the tensors
+  of lower precision. Each tensor now gets a `.grad` of its own dtype, like with `torch.autograd`.
 
 ## [0.17.1] - 2026-09-23
 

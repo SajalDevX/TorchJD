@@ -205,7 +205,7 @@ def _gramian_based(
     gradients = list[Tensor]()
     while jacobians:
         jacobian = jacobians.popleft()  # get jacobian + dereference it to free memory asap
-        gradients.append(torch.tensordot(weights, jacobian, dims=1))
+        gradients.append(torch.tensordot(weights.to(dtype=jacobian.dtype), jacobian, dims=1))
 
     return gradients, weights
 
@@ -229,7 +229,9 @@ def _disunite_gradient(
     tensors: list[TensorWithJac],
 ) -> list[Tensor]:
     gradient_vectors = gradient_vector.split([t.numel() for t in tensors])
-    gradients = [g.reshape(t.shape) for g, t in zip(gradient_vectors, tensors, strict=True)]
+    gradients = [
+        g.reshape(t.shape).to(dtype=t.dtype) for g, t in zip(gradient_vectors, tensors, strict=True)
+    ]
     return gradients
 
 

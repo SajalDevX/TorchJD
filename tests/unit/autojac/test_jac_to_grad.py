@@ -1,5 +1,6 @@
 from typing import Any
 
+import torch
 from pytest import mark, raises
 from torch import Tensor
 from torch.testing import assert_close
@@ -264,6 +265,29 @@ def test_noncontiguous_jac() -> None:
 
     jac_to_grad([t], aggregator)
     assert_grad_close(t, g)
+
+
+@mark.parametrize("optimize", [True, False])
+def test_mixed_dtypes(optimize: bool) -> None:
+    """
+    Tests that jac_to_grad works when the tensors do not all have the same dtype. Each tensor should
+    get a .grad of its own dtype, as torch's backward would do.
+    """
+
+    aggregator = base_agg()
+    t1 = tensor_(1.0, dtype=torch.float32, requires_grad=True)
+    t2 = tensor_([2.0, 3.0], dtype=torch.float64, requires_grad=True)
+    jac = tensor_([[-4.0, 1.0, 1.0], [6.0, 1.0, 1.0]], dtype=torch.float64)
+    t1.__setattr__("jac", jac[:, 0].to(dtype=torch.float32))
+    t2.__setattr__("jac", jac[:, 1:])
+    expected_grad = aggregator(jac)
+
+    jac_to_grad([t1, t2], aggregator, optimize_gramian_computation=optimize)
+
+    assert t1.grad is not None and t1.grad.dtype == torch.float32
+    assert t2.grad is not None and t2.grad.dtype == torch.float64
+    assert_grad_close(t1, expected_grad[0].to(dtype=torch.float32))
+    assert_grad_close(t2, expected_grad[1:])
 
 
 @mark.parametrize("aggregator", [base_agg(), ConFIG()])
