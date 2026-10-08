@@ -8,6 +8,8 @@ changelog does not include internal changes that do not affect the user.
 
 ## [Unreleased]
 
+## [0.18.0] - 2026-10-08
+
 ### Added
 
 - Added `PCD` and `PCDWeighting` from [Not All Objectives Are Born Equal: Priority-Constrained
